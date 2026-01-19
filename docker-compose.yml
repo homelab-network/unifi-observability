@@ -1,0 +1,141 @@
+version: "3.8"
+
+# UniFi Observability Stack
+# Prometheus + Grafana + Unpoller for UniFi Network Monitoring
+# Production-ready configuration for QuantumLayer Platform
+
+networks:
+  monitoring:
+    driver: bridge
+    name: unifi-monitoring
+
+volumes:
+  prometheus_data:
+    name: unifi-prometheus-data
+  grafana_data:
+    name: unifi-grafana-data
+
+services:
+  # ===========================================
+  # Prometheus - Metrics Storage & Query Engine
+  # ===========================================
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: unifi-prometheus
+    restart: unless-stopped
+    networks:
+      - monitoring
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/config:/etc/prometheus:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=90d'
+      - '--storage.tsdb.retention.size=10GB'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
+
+  # ===========================================
+  # Grafana - Visualization & Dashboards
+  # ===========================================
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: unifi-grafana
+    restart: unless-stopped
+    networks:
+      - monitoring
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://localhost:3000}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/unifi-access-points.json
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+
+  # ===========================================
+  # Unpoller - UniFi Metrics Exporter
+  # ===========================================
+  unpoller:
+    image: ghcr.io/unpoller/unpoller:latest
+    container_name: unifi-unpoller
+    restart: unless-stopped
+    networks:
+      - monitoring
+    ports:
+      - "9130:9130"
+    env_file:
+      - ./unpoller/.env
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9130/metrics"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 64M
+
+  # ===========================================
+  # Dozzle - Container Log Viewer (Optional)
+  # ===========================================
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: unifi-dozzle
+    restart: unless-stopped
+    profiles:
+      - logs
+    networks:
+      - monitoring
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - DOZZLE_LEVEL=info
+      - DOZZLE_TAILSIZE=300
+      - DOZZLE_FILTER=name=unifi-*
+    deploy:
+      resources:
+        limits:
+          memory: 128M

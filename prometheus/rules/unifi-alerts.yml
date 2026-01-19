@@ -1,0 +1,79 @@
+# UniFi Alert Rules for Prometheus
+# These are example alerts - customize thresholds for your environment
+
+groups:
+  - name: unifi-devices
+    rules:
+      # Device offline alert
+      - alert: UniFiDeviceOffline
+        expr: unpoller_device_uptime_seconds == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "UniFi device {{ $labels.name }} is offline"
+          description: "Device {{ $labels.name }} ({{ $labels.type }}) has been offline for more than 5 minutes."
+
+      # High device memory usage
+      - alert: UniFiDeviceHighMemory
+        expr: unpoller_device_memory_percent > 90
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.name }}"
+          description: "Device {{ $labels.name }} memory usage is above 90% (current: {{ $value }}%)"
+
+      # High device CPU usage
+      - alert: UniFiDeviceHighCPU
+        expr: unpoller_device_cpu_percent > 90
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.name }}"
+          description: "Device {{ $labels.name }} CPU usage is above 90% (current: {{ $value }}%)"
+
+  - name: unifi-wireless
+    rules:
+      # Access point high channel utilization
+      - alert: UniFiAPHighChannelUtilization
+        expr: unpoller_uap_channel_utilization_percent > 80
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High channel utilization on {{ $labels.name }}"
+          description: "AP {{ $labels.name }} channel {{ $labels.channel }} utilization is above 80%"
+
+      # Low RSSI clients (poor signal)
+      - alert: UniFiClientPoorSignal
+        expr: unpoller_client_rssi_dbm < -75
+        for: 30m
+        labels:
+          severity: info
+        annotations:
+          summary: "Client {{ $labels.name }} has poor signal"
+          description: "Client {{ $labels.name }} RSSI is {{ $value }} dBm (below -75 dBm threshold)"
+
+  - name: unifi-network
+    rules:
+      # Gateway WAN disconnection
+      - alert: UniFiWANDisconnected
+        expr: unpoller_ugw_wan_bytes_total == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "UniFi Gateway WAN connection lost"
+          description: "No WAN traffic detected for more than 2 minutes"
+
+      # High port errors
+      - alert: UniFiSwitchPortErrors
+        expr: rate(unpoller_usw_port_rx_errors_total[5m]) > 10
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High port errors on {{ $labels.name }} port {{ $labels.port }}"
+          description: "Port errors detected on switch {{ $labels.name }} port {{ $labels.port }}"

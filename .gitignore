@@ -1,0 +1,26 @@
+# Environment files with secrets
+.env
+unpoller/.env
+grafana/.env
+prometheus/.env
+
+# Data directories (persistent volumes)
+prometheus/data/
+grafana/data/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Backups
+*.bak
+*.backup
