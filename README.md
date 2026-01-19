@@ -15,18 +15,24 @@ Production-ready monitoring stack for UniFi Network infrastructure using Prometh
 
 ### 1. Configure Unpoller
 
-Edit `unpoller/.env` with your UniFi controller credentials:
+Edit `unpoller/.env` with your UniFi controller credentials.
 
+**Option A: API Key (Recommended for Cloud Gateway)**
+```bash
+UP_UNIFI_CONTROLLER_0_URL=https://192.168.1.1
+UP_UNIFI_CONTROLLER_0_API_KEY=your_api_key_here
+```
+
+Generate an API key in UniFi: Settings → Control Plane → API Tokens → Create
+
+**Option B: Username/Password (Self-hosted controllers)**
 ```bash
 UP_UNIFI_CONTROLLER_0_URL=https://192.168.1.1
 UP_UNIFI_CONTROLLER_0_USER=unpoller
 UP_UNIFI_CONTROLLER_0_PASS=your_password
 ```
 
-**Important:** Create a dedicated local-only admin user in UniFi for Unpoller:
-- UniFi Settings → Admins → Add Admin
-- Select "Local Access Only"
-- Give it a strong password
+Create a dedicated local-only admin user in UniFi for this method.
 
 ### 2. Configure Grafana (Optional)
 
