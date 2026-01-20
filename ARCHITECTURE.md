@@ -112,6 +112,40 @@ This document describes the complete home network architecture including VLAN se
 - YouTube Kids
 - Amazon Prime Video
 
+### Local DNS Names (.home domain)
+
+All devices can be accessed by hostname using the `.home` domain (configured in /etc/hosts on DNS server):
+
+| Hostname | IP Address | Description |
+|----------|------------|-------------|
+| **Infrastructure** |||
+| gateway.home | 192.168.1.1 | UniFi Cloud Gateway |
+| unifi.home | 192.168.1.1 | UniFi Controller |
+| dns.home | 192.168.1.53 | DNS Server |
+| adguard.home | 192.168.1.53 | AdGuard Home Web UI |
+| proxmox.home | 192.168.1.204 | Proxmox VE |
+| grafana.home | 192.168.1.204 | Grafana Dashboards |
+| prometheus.home | 192.168.1.204 | Prometheus Metrics |
+| mac-mini.home | 192.168.1.118 | Mac Mini |
+| **Homelab VMs** |||
+| qlp-master.home | 192.168.5.212 | Primary app server |
+| qlp-beta.home | 192.168.5.150 | Beta/staging |
+| quintelligence.home | 192.168.5.25 | AI/ML workloads |
+| quantumnews.home | 192.168.5.125 | News aggregation |
+| localgpt.home | 192.168.5.131 | Local LLM |
+| labverse.home | 192.168.5.16 | Lab environment |
+| careerfied.home | 192.168.5.89 | Career platform |
+| **Entertainment** |||
+| ps5.home | 192.168.15.144 | PlayStation 5 |
+| appletv.home | 192.168.15.164 | Apple TV |
+| soundbar.home | 192.168.15.205 | Bose Soundbar 900 |
+
+**Quick Access URLs:**
+- Grafana: http://grafana.home:3000
+- AdGuard: http://adguard.home:3000
+- Proxmox: https://proxmox.home:8006
+- UniFi: https://unifi.home
+
 ---
 
 ## Observability Stack
