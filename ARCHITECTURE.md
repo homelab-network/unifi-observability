@@ -186,9 +186,10 @@ All devices can be accessed by hostname using the `.home` domain (configured in 
 
 | Service | Username | Password | Notes |
 |---------|----------|----------|-------|
-| Grafana | admin | admin | http://192.168.1.204:3000 |
-| AdGuard Home | - | - | http://192.168.1.53:3000 |
-| UniFi Controller | - | API Key | Via Cloud Gateway |
+| Grafana | admin | admin | http://grafana.home:3000 |
+| AdGuard Home | admin | admin | http://adguard.home:3000 |
+| Proxmox | root | (system) | https://proxmox.home:8006 |
+| UniFi Controller | - | API Key | https://unifi.home |
 
 ---
 
