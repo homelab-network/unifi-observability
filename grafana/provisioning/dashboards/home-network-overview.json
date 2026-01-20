@@ -452,7 +452,7 @@
       },
       "targets": [
         {
-          "expr": "count(unpoller_client_uptime_seconds{wired="false"}) by (essid)",
+          "expr": "count(unpoller_client_uptime_seconds{wired=\"false\"}) by (essid)",
           "legendFormat": "{{essid}}",
           "refId": "A"
         }
@@ -602,7 +602,7 @@
       },
       "targets": [
         {
-          "expr": "unpoller_client_radio_signal_db{wired="false"}",
+          "expr": "unpoller_client_radio_signal_db{wired=\"false\"}",
           "format": "table",
           "instant": true,
           "refId": "A"
